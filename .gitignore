@@ -1,0 +1,9 @@
+.env
+Gemfile.lock
+.dockerignore
+*.log
+log/
+*.swp
+*.swo
+*.bak
+*.tmp
