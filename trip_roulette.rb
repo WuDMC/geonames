@@ -41,6 +41,7 @@ class Geocoding
     else
       @rounds -= 1
       # todo lat and lng use from prev city
+      # todo - проверить почему массив городов не сбрасывается а складывается
       gen_route(lat, lng, size: @size, local: @local, radius: @radius, type: @type, cache: @route, skiped: @skiped_arr, rounds: @rounds)
     end
     rescue StandardError => e
