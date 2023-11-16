@@ -11,10 +11,17 @@ end
 set :bind, '0.0.0.0'
 
 before do
-  response.headers['Access-Control-Allow-Origin'] = 'http://localhost:8000'
-  response.headers['Access-Control-Allow-Methods'] = 'POST'
-  response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+  allowed_origins = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+  origin = request.env['HTTP_ORIGIN']
+
+  if allowed_origins.include?(origin)
+    response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Methods'] = 'POST'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+  end
 end
+
 
 get '/' do
   "Hi, please send to '/route' path a POST request with the required parameters. \n curl -X POST http://localhost:4567/route -H 'Content-Type: application/json' -d '{\"lat\": -8.670458199999999, \"lng\": 115.2126293, \"opts\": {\"size\": 2, \"local\": true, \"radius\": 100, \"type\": \"car\", \"rounds\": 5}}"

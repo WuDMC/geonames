@@ -59,11 +59,12 @@ class Geocoding
       username: @geonames_user,
       localCountry: @local,
     )
+
     response = HTTParty.get(uri.to_s)
     puts "url: #{uri.to_s}"
     JSON.parse(response.body, symbolize_names: true)
   rescue StandardError => e
-    raise "something goes wrong in nearest_cities method: #{e.message}"
+    raise "something goes wrong url: #{uri.to_s} in nearest_cities method: #{e.message}"
   end
 
   def choose_city(cities)

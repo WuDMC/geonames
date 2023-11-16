@@ -1,0 +1,44 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    coderay (1.1.3)
+    dotenv (2.8.1)
+    httparty (0.21.0)
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
+    json (2.6.3)
+    method_source (1.0.0)
+    mini_mime (1.1.2)
+    multi_xml (0.6.0)
+    mustermann (2.0.2)
+      ruby2_keywords (~> 0.0.1)
+    pry (0.14.2)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
+    rack (2.2.8)
+    rack-protection (2.2.4)
+      rack
+    ruby2_keywords (0.0.5)
+    sinatra (2.2.4)
+      mustermann (~> 2.0)
+      rack (~> 2.2)
+      rack-protection (= 2.2.4)
+      tilt (~> 2.0)
+    sinatra-cross_origin (0.4.0)
+    tilt (2.3.0)
+    uri (0.10.3)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  dotenv
+  httparty
+  json
+  pry
+  sinatra
+  sinatra-cross_origin
+  uri
+
+BUNDLED WITH
+   2.2.3
