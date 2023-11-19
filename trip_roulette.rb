@@ -13,17 +13,24 @@ class Geocoding
 
   def init_vars(opts)
     Dotenv.load
-    @size ||= opts.fetch('size', 2)
-    @local ||= opts.fetch('local', true)
-    @type ||= opts.fetch('type', :car).to_sym
-    @radius ||= opts.fetch('radius', DIST_ARR[@type][:max])
+    @size = opts.fetch('size', 2)
+    @local = opts.fetch('local', true)
+    @type = opts.fetch('type', :car).to_sym
+    @radius = opts.fetch('radius', DIST_ARR[@type][:max])
     @radius = [@radius, 15].max
     @radius = [@radius, 300].min
-    @rounds ||= opts.fetch('rounds', 1)
-    @skiped ||= []
+    @rounds = opts.fetch('rounds', 1)
+    @skiped = []
     # todo добавлять в пропуски первый город
-    @route ||= []
+    @route = []
     @geonames_user = ENV['GEONAMES_USER']
+    puts " ots: "\
+         " @size: #{@size} "\
+         " @local: #{@local} "\
+         " @type: #{@type} "\
+         " @radius #{@radius} "\
+         " @rounds: #{@rounds} "\
+         " @skiped: #{@skiped} "
   end
 
   def gen_route(lat, lng, opts = {})
@@ -41,7 +48,6 @@ class Geocoding
     else
       @rounds -= 1
       # todo lat and lng use from prev city
-      # todo - проверить почему массив городов не сбрасывается а складывается
       gen_route(lat, lng, size: @size, local: @local, radius: @radius, type: @type, cache: @route, skiped: @skiped_arr, rounds: @rounds)
     end
     rescue StandardError => e
