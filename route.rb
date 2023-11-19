@@ -4,7 +4,6 @@ require 'json'
 require_relative 'trip_roulette'
 
 configure do
-  set :geocoding_instance, Geocoding.new
   enable :cross_origin
 end
 
@@ -44,7 +43,8 @@ post '/route' do
     return { error: 'Invalid request payload' }.to_json
   end
 
-  geocoding_instance = settings.geocoding_instance
+  geocoding_instance = Geocoding.new
   result = geocoding_instance.gen_route(lat, lng, opts)
+  geocoding_instance.close if geocoding_instance.respond_to?(:close)
   { result: result }.to_json
 end

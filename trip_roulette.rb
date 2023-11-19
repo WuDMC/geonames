@@ -6,25 +6,28 @@ require 'dotenv'
 
 class Geocoding
   GEONAMES_URL = 'http://api.geonames.org/findNearbyPlaceNameJSON'.freeze
-  DIST_ARR = { car: { min: 10, max: 300 }, walk: { min: 1, max: 10 }, bicycle: { min: 3, max: 30 } }.freeze
+  DIST_ARR = { car: { min: 2, max: 300 }, walk: { min: 1, max: 5 }, bicycle: { min: 1, max: 15 } }.freeze
   MAX_ROWS = 30
   RESPONSE_STYLE = 'short'.freeze
   CITY_SIZES = %w[cities500 cities1000 cities5000 cities15000].freeze
 
+    def initialize
+        Dotenv.load
+    end
+
   def init_vars(opts)
-    Dotenv.load
-    @size = opts.fetch('size', 2)
-    @local = opts.fetch('local', true)
-    @type = opts.fetch('type', :car).to_sym
-    @radius = opts.fetch('radius', DIST_ARR[@type][:max])
+    @size ||= opts.fetch('size', 2)
+    @local ||= opts.fetch('local', true)
+    @type ||= opts.fetch('type', :car).to_sym
+    @radius ||= opts.fetch('radius', DIST_ARR[@type][:max])
     @radius = [@radius, 15].max
     @radius = [@radius, 300].min
-    @rounds = opts.fetch('rounds', 1)
-    @skiped = []
+    @rounds ||= opts.fetch('rounds', 1)
+    @skiped ||= []
     # todo добавлять в пропуски первый город
-    @route = []
+    @route ||= []
     @geonames_user = ENV['GEONAMES_USER']
-    puts " ots: "\
+    puts " opts: "\
          " @size: #{@size} "\
          " @local: #{@local} "\
          " @type: #{@type} "\
@@ -36,8 +39,10 @@ class Geocoding
   def gen_route(lat, lng, opts = {})
     init_vars(opts)
     next_city = choose_city(nearest_cities(lat, lng))
-    raise "no next city: #{next_city} please use different parameters" unless next_city[:name]
-
+    unless next_city
+        puts "no next city: please use different parameters"
+        return @route
+    end
     puts "Next city is #{next_city[:name]}"
     @route << next_city
     puts "current round is #{@rounds}"
@@ -46,6 +51,9 @@ class Geocoding
       @route.each { |point| puts point[:name] }
       @route
     else
+      puts "route last is #{@route[-1]}"
+      lat = @route[-1][:lat]
+      lng = @route[-1][:lng]
       @rounds -= 1
       # todo lat and lng use from prev city
       gen_route(lat, lng, size: @size, local: @local, radius: @radius, type: @type, cache: @route, skiped: @skiped_arr, rounds: @rounds)
@@ -78,13 +86,22 @@ class Geocoding
     arr = []
     puts "skipped cities: #{@skiped}"
     cities[:geonames].each do |city|
-      if DIST_ARR[@type][:min] < city[:distance].to_f && city[:distance].to_f < @radius.to_f && !@skiped.include?(city)
+      next if @skiped.include?(city[:toponymName])
+
+      if DIST_ARR[@type][:min] < city[:distance].to_f && city[:distance].to_f < @radius.to_f &&
+       !@skiped.include?(city[:toponymName])
         arr << city
       elsif DIST_ARR[@type][:min] > city[:distance].to_f && !@skiped.include?(city)
-        @skiped << city
+        puts "#{city[:toponymName]} is too close ? distance is #{city[:distance]} NEED TO SKIP"
+        @skiped << city[:toponymName]
       end
     end
-    arr.sample
+    return nil unless arr.any?
+
+    next_city = arr.sample
+    puts "Next city is #{next_city}"
+    @skiped << next_city[:toponymName]
+    next_city
   rescue StandardError => e
     raise "something goes wrong in choose_city method: #{e.message}"
   end
