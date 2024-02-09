@@ -3,6 +3,11 @@ require 'uri'
 require 'httparty'
 require 'pry'
 require 'dotenv'
+# require_relative 'trip_roulette'
+#   geocoding_instance = Geocoding.new
+#   result = geocoding_instance.gen_route(lat, lng, opts)
+# lat = 37.3967587
+# lng =  -5.9893804
 
 class Geocoding
   GEONAMES_URL = 'http://api.geonames.org/findNearbyPlaceNameJSON'.freeze
@@ -16,17 +21,27 @@ class Geocoding
     end
 
   def init_vars(opts)
-    @size ||= opts.fetch('size', 2)
-    @local ||= opts.fetch('local', true)
-    @type ||= opts.fetch('type', :car).to_sym
-    @radius ||= opts.fetch('radius', DIST_ARR[@type][:max])
-    @radius = [@radius, 15].max
-    @radius = [@radius, 300].min
-    @rounds ||= opts.fetch('rounds', 1)
+    @start_opts ||= opts
+    puts @start_opts
+    @local ||= opts.fetch('local', [false, true].sample)
+    @rounds ||= opts.fetch('rounds', 3)
+    @random ||= opts.fetch('random', false)
     @skiped ||= []
-    # todo добавлять в пропуски первый город
+    # todo добавлять в пропуски первый город ???  зачем ? я не помню чтобы на круг не заходил
     @route ||= []
+    @size = opts.fetch('size', rand(0..3))
+    @type = opts.fetch('type', DIST_ARR.keys.sample).to_sym
+    puts opts
+    puts opts['radius']
+    @radius = opts.fetch('radius', rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max]))
+    puts @radius
+    @radius = [@radius, 2].max
+    puts @radius
+    @radius = [@radius, 300].min
+    puts @radius
     @geonames_user = ENV['GEONAMES_USER']
+    puts '_____________'
+    puts '_____________'
     puts " opts: "\
          " @size: #{@size} "\
          " @local: #{@local} "\
@@ -34,6 +49,9 @@ class Geocoding
          " @radius #{@radius} "\
          " @rounds: #{@rounds} "\
          " @skiped: #{@skiped} "
+    puts '_____________'
+    puts '_____________'
+
   end
 
   def gen_route(lat, lng, opts = {})
@@ -56,7 +74,13 @@ class Geocoding
       lng = @route[-1][:lng]
       @rounds -= 1
       # todo lat and lng use from prev city
-      gen_route(lat, lng, size: @size, local: @local, radius: @radius, type: @type, cache: @route, skiped: @skiped_arr, rounds: @rounds)
+       if @random
+       puts 'random generation '
+        gen_route(lat, lng, 'cache' => @route, 'skiped' => @skiped, 'rounds' => @rounds)
+       else
+        puts 'generation with attributes'
+        gen_route(lat, lng, 'size' => @size, 'local' => @local, 'radius' => @radius, 'type' => @type, 'cache' => @route, 'skiped' => @skiped, 'rounds' => @rounds)
+       end
     end
     rescue StandardError => e
       raise "something goes wrong in gen_route method: #{e.message}"
