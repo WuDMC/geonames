@@ -36,7 +36,7 @@ post '/route' do
   lat = request_payload['lat']
   lng = request_payload['lng']
   opts = request_payload['opts']
-  puts opts.pretty_inspect
+  puts "opts from request #{opts.pretty_inspect}"
 
   if lat.nil? || lng.nil?
     status 400

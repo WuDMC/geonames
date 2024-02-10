@@ -22,23 +22,19 @@ class Geocoding
 
   def init_vars(opts)
     @start_opts ||= opts
-    puts @start_opts
-    @local ||= opts.fetch('local', [false, true].sample)
-    @rounds ||= opts.fetch('rounds', 3)
-    @random ||= opts.fetch('random', false)
+    puts "start opts #{@start_opts}"
+    puts "opts #{opts}"
+    @local ||= opts['local'] ? opts['local'] :  [false, true].sample
+    @rounds ||= opts['rounds'] ? opts['rounds'] :  rand(2..7)
+    @random ||= opts['random'] ? opts['random'] :  false
     @skiped ||= []
     # todo добавлять в пропуски первый город ???  зачем ? я не помню чтобы на круг не заходил
     @route ||= []
-    @size = opts.fetch('size', rand(0..3))
-    @type = opts.fetch('type', DIST_ARR.keys.sample).to_sym
-    puts opts
-    puts opts['radius']
-    @radius = opts.fetch('radius', rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max]))
-    puts @radius
+    @size = opts['size'] ? opts['size'] : rand(0..3)
+    @type = opts['type'] ? opts['size'].to_sym : DIST_ARR.keys.sample
+    @radius = opts['radius'] ? opts['radius'] : rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max])
     @radius = [@radius, 2].max
-    puts @radius
     @radius = [@radius, 300].min
-    puts @radius
     @geonames_user = ENV['GEONAMES_USER']
     puts '_____________'
     puts '_____________'
@@ -51,7 +47,6 @@ class Geocoding
          " @skiped: #{@skiped} "
     puts '_____________'
     puts '_____________'
-
   end
 
   def gen_route(lat, lng, opts = {})
@@ -59,7 +54,10 @@ class Geocoding
     next_city = choose_city(nearest_cities(lat, lng))
     unless next_city
         puts "no next city: please use different parameters"
-        return @route
+        return @route unless @random
+
+        puts "AUTO USE NEW GENERATION WITH RANDOM OPTIONS"
+        return gen_route(lat, lng, 'cache' => @route, 'skiped' => @skiped, 'rounds' => @rounds)
     end
     puts "Next city is #{next_city[:name]}"
     @route << next_city
@@ -74,13 +72,13 @@ class Geocoding
       lng = @route[-1][:lng]
       @rounds -= 1
       # todo lat and lng use from prev city
-       if @random
-       puts 'random generation '
+      if @random
+        puts 'random generation '
         gen_route(lat, lng, 'cache' => @route, 'skiped' => @skiped, 'rounds' => @rounds)
-       else
+      else
         puts 'generation with attributes'
         gen_route(lat, lng, 'size' => @size, 'local' => @local, 'radius' => @radius, 'type' => @type, 'cache' => @route, 'skiped' => @skiped, 'rounds' => @rounds)
-       end
+      end
     end
     rescue StandardError => e
       raise "something goes wrong in gen_route method: #{e.message}"
