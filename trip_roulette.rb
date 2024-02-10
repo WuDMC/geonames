@@ -24,15 +24,15 @@ class Geocoding
     @start_opts ||= opts
     puts "start opts #{@start_opts}"
     puts "opts #{opts}"
-    @local ||= opts['local'] ? opts['local'] :  [false, true].sample
-    @rounds ||= opts['rounds'] ? opts['rounds'] :  rand(2..7)
     @random ||= opts['random'] ? opts['random'] :  false
+    @local ||= @random ? [false, true].sample : opts['local'] ? opts['local'] : [false, true].sample
+    @rounds ||= @random ? rand(2..7) : opts['rounds'] ? opts['rounds'] : rand(2..7)
     @skiped ||= []
     # todo добавлять в пропуски первый город ???  зачем ? я не помню чтобы на круг не заходил
     @route ||= []
-    @size = opts['size'] ? opts['size'] : rand(0..3)
-    @type = opts['type'] ? opts['size'].to_sym : DIST_ARR.keys.sample
-    @radius = opts['radius'] ? opts['radius'] : rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max])
+    @size = @random ? rand(0..3) : opts['size'] ? opts['size'] : rand(0..3)
+    @type = @random ?  DIST_ARR.keys.sample : opts['type'] ? opts['type'].to_sym : DIST_ARR.keys.sample
+    @radius = @random ? rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max]) : opts['radius'] ? opts['radius'] : rand(DIST_ARR[@type][:min]..DIST_ARR[@type][:max])
     @radius = [@radius, 2].max
     @radius = [@radius, 300].min
     @geonames_user = ENV['GEONAMES_USER']
