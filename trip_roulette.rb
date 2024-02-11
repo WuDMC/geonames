@@ -12,7 +12,7 @@ require 'dotenv'
 class Geocoding
   GEONAMES_URL = 'http://api.geonames.org/findNearbyPlaceNameJSON'.freeze
   DIST_ARR = { car: { min: 2, max: 300 }, walk: { min: 1, max: 5 }, bicycle: { min: 1, max: 15 } }.freeze
-  MAX_ROWS = 30
+  MAX_ROWS = 500
   RESPONSE_STYLE = 'short'.freeze
   CITY_SIZES = %w[cities500 cities1000 cities5000 cities15000].freeze
 
@@ -120,9 +120,34 @@ class Geocoding
     end
     return nil unless arr.any?
 
-    next_city = arr.sample
-    puts "Next city is #{next_city}"
+    # Сортируем массив arr по расстоянию от большему к меньшему
+    arr_sorted = arr.sort_by { |city| city[:distance].to_f }.reverse
+    puts "ARR SIZE #{arr_sorted.size}"
+    # Вычисляем индекс, который представляет середину массива (50%)
+    middle_index = (arr_sorted.length / 3.0).ceil
+    puts "middle_index #{middle_index}"
+
+    # Выбираем первую половину элементов отсортированного массива
+    top_50_percent = arr_sorted.take(middle_index)
+    puts "top_50_percent #{top_50_percent}"
+
+    # Выбираем случайный город из топ 50% городов
+    next_city = top_50_percent.sample
+    puts '=============================='
+
+    puts '=============================='
+
+    puts '=============================='
+    puts "#{arr_sorted[0][:distance]}"
+    puts "#{arr_sorted[-1][:distance]}"
+
+    puts "NEXT CITY: #{next_city}"
     @skiped << next_city[:toponymName]
+    puts '=============================='
+
+    puts '=============================='
+
+    puts '=============================='
     next_city
   rescue StandardError => e
     raise "something goes wrong in choose_city method: #{e.message}"
