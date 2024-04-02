@@ -14,5 +14,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag geonames-app:$(date +%s)
+
+    - name: Run the Docker container
+      run: docker run -d -p 4567:4567 --name geonames-container geonames-app:$(date +%s)
+
+    - name: Test the container
+      run: ./curl_test.sh
+
+    - name: Stop and remove the container
+      run: |
+        docker stop geonames-container
+        docker rm geonames-container
