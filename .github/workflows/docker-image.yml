@@ -21,6 +21,9 @@ jobs:
     - name: Run the Docker container
       run: docker run -d -p 4567:4567 --name geonames-container geonames-app:test
 
+    - name: Make script executable
+      run: chmod +x curl_test.sh
+
     - name: Test the container
       run: ./curl_test.sh
 
