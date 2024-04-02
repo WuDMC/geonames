@@ -9,3 +9,5 @@ docker-compose build
 
 docker-compose up -d
 
+see git build
+
