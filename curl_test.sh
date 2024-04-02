@@ -11,7 +11,7 @@ echo "curl -X POST $url -H 'Content-Type: application/json' -d '$data'"
 echo ""
 
 # Выполнение запроса с помощью curl и сохранение ответа
-response=$(curl POST $url -H 'Content-Type: application/json' -d "$data" -v > output.txt)
+response=$(curl -X POST $url -H 'Content-Type: application/json' -d "$data" -v > output.txt)
 cat output.txt
 # Проверка наличия ключа "result" в JSON ответе
 if echo "$response" | jq -e '.result' > /dev/null; then
