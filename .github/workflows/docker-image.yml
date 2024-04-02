@@ -16,10 +16,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag geonames-app:$(date +%s)
+      run: docker build . --file Dockerfile --tag geonames-app:test
 
     - name: Run the Docker container
-      run: docker run -d -p 4567:4567 --name geonames-container geonames-app:$(date +%s)
+      run: docker run -d -p 4567:4567 --name geonames-container geonames-app:test
 
     - name: Test the container
       run: ./curl_test.sh
